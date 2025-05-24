@@ -44,5 +44,9 @@ jobs:
         run: |
           pytest tests/
 
-      - name: Check for uncommitted secrets
-        uses: Yelp/detect-secrets@v1.4.0
+      - name: Check for secrets with detect-secrets
+        run: |
+          pip install detect-secrets
+          detect-secrets scan > .secrets.baseline
+          detect-secrets audit .secrets.baseline
+        
