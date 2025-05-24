@@ -25,11 +25,20 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 chroma_curator/ chroma-curator.py --max-line-length=100
+          # Lint both the package and CLI script
+          flake8 chroma_curator/ cli.py --max-line-length=100
 
       - name: Static security scan with Bandit
         run: |
-          bandit -r chroma_curator/ chroma-curator.py
+          # Scan both the package and CLI script
+          bandit -r chroma_curator/ cli.py
+
+      - name: Ensure test_vectors.json exists
+        run: |
+          if [ ! -f tests/test_vectors.json ]; then
+            echo "ERROR: tests/test_vectors.json is missing!"
+            exit 1
+          fi
 
       - name: Run unit tests
         run: |

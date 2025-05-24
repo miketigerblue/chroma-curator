@@ -26,15 +26,15 @@
 
 ## Getting Started
 
-### 1. Install Requirements
 
-```
-pip install chromadb pandas numpy
-```
-### 2. (Optional) Set Up a Virtual Environment
+### 1. (Optional) Set Up a Virtual Environment
 ```
 python3 -m venv venv
 source venv/bin/activate
+```
+### 2. Install Requirements
+```
+pip install chromadb pandas numpy
 ```
 ### 3. Clone the Repo
 ```
