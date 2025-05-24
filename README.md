@@ -43,7 +43,7 @@ cd chroma-curator
 ```
 ### 4. Run the Profiler and Export Tool
 ```
-./chroma_curator.py
+./cli.py
 ```
 By default, it profiles your ChromaDB database at `./chroma/` and exports:
 
@@ -92,16 +92,16 @@ Made with ❤️ by the edge AI & data science community.
 
 ## **Optional: Shebang for CLI**
 
-You can add a shebang to the top of `chroma-curator.py` to allow direct execution:
+You can add a shebang to the top of `cli.py` to allow direct execution:
 ```
 #!/usr/bin/env python3
 ```
 Then make it executable:
 ```
-chmod +x chroma-curator.py
+chmod +x cli.py
 ```
 
 Now you can run:
 ```
-./chroma-curator.py
+./cli.py
 ```
