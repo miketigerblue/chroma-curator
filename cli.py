@@ -133,10 +133,13 @@ def export_for_edge(df, embeddings, docs, ids, top_n=2048, key_fields=None):
     # Attempt to sort by published date, else by document length
     if "published" in df.columns:
         try:
-            df["published_dt"] = pd.to_datetime(df["published"], errors="coerce")
             df = df.sort_values("published_dt", ascending=False)
-        except Exception:
+        except KeyError:
+            # Field missing, skip sorting
             pass
+        except Exception as e:
+            print(f"Unexpected error during sort: {e}")
+            raise
 
     # Secondary sort: longest documents first (most informative)
     df = df.sort_values("doc_len", ascending=False)
