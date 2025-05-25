@@ -38,7 +38,7 @@ pip install chromadb pandas numpy
 ```
 ### 3. Clone the Repo
 ```
-git clone https://github.com/yourusername/chroma-curator.git
+git clone https://github.com/miketigerblue/chroma-curator.git
 cd chroma-curator
 ```
 ### 4. Run the Profiler and Export Tool
