@@ -12,6 +12,7 @@ Date: 2025-05-25
 
 import numpy as np
 
+
 def cosine_similarity(v1, v2):
     """
     Compute cosine similarity between two vectors (lists or numpy arrays).
@@ -25,6 +26,7 @@ def cosine_similarity(v1, v2):
         return 0.0
     return float(num) / float(denom)
 
+
 def top_similar_vectors(query, records, top_k=5):
     """
     Given a query vector and a list of record dicts (each with a 'vector' and 'id'),
@@ -32,10 +34,11 @@ def top_similar_vectors(query, records, top_k=5):
     """
     scored = []
     for rec in records:
-        sim = cosine_similarity(query, rec['vector'])
+        sim = cosine_similarity(query, rec["vector"])
         scored.append((sim, rec))
     # Sort by descending similarity
     scored.sort(reverse=True, key=lambda x: x[0])
     return [rec for sim, rec in scored[:top_k]]
+
 
 # Optionally add more helpers here (e.g., load_vectors, batch_search, etc.)

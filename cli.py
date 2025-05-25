@@ -23,6 +23,7 @@ from collections import Counter
 # ChromaDB Connection Utilities
 # ==============================
 
+
 def connect_chromadb(persist_dir="./chroma"):
     """
     Connect to a ChromaDB persistent store at the given directory.
@@ -31,9 +32,11 @@ def connect_chromadb(persist_dir="./chroma"):
     client = chromadb.PersistentClient(path=persist_dir)
     return client
 
+
 # ==============================
 # Collection Profiling
 # ==============================
+
 
 def profile_collection(collection):
     """
@@ -54,38 +57,41 @@ def profile_collection(collection):
         return {}, pd.DataFrame(), np.array([]), [], []
 
     # Fetch all records from ChromaDB (consider batching if huge)
-    all_items = collection.get(
-        include=['embeddings', 'metadatas', 'documents']
-    )
-    ids        = all_items['ids']
-    embeddings = np.array(all_items['embeddings'])
-    metas      = all_items['metadatas']
-    docs       = all_items['documents']
+    all_items = collection.get(include=["embeddings", "metadatas", "documents"])
+    ids = all_items["ids"]
+    embeddings = np.array(all_items["embeddings"])
+    metas = all_items["metadatas"]
+    docs = all_items["documents"]
 
     # Build DataFrame from metadata
     df = pd.DataFrame(metas)
-    df['id'] = ids
+    df["id"] = ids
 
     # Compute embedding norm for stats (helps detect anomalies)
     if embeddings.ndim == 2:
-        df['embedding_norm'] = np.linalg.norm(embeddings, axis=1)
+        df["embedding_norm"] = np.linalg.norm(embeddings, axis=1)
 
     # Document existence and length stats
-    df['has_doc'] = [d is not None and len(str(d)) > 0 for d in docs]
-    df['doc_len'] = [len(str(d)) if d else 0 for d in docs]
+    df["has_doc"] = [d is not None and len(str(d)) > 0 for d in docs]
+    df["doc_len"] = [len(str(d)) if d else 0 for d in docs]
 
     # Build a profile summary dictionary
     profile = {
         "num_records": n,
         "embedding_dim": int(embeddings.shape[1]) if embeddings.ndim == 2 else None,
-        "field_completeness": df.notnull().mean().to_dict(),  # fraction non-null for each field
-        "has_document_pct": float(df['has_doc'].mean()),
-        "doc_length_stats": df['doc_len'].describe().to_dict(),
-        "embedding_norm_stats": df['embedding_norm'].describe().to_dict() if 'embedding_norm' in df else {},
+        "field_completeness": df.notnull()
+        .mean()
+        .to_dict(),  # fraction non-null for each field
+        "has_document_pct": float(df["has_doc"].mean()),
+        "doc_length_stats": df["doc_len"].describe().to_dict(),
+        "embedding_norm_stats": (
+            df["embedding_norm"].describe().to_dict() if "embedding_norm" in df else {}
+        ),
         "fields": list(df.columns),
         "top_fields": {
             col: df[col].value_counts().head(5).to_dict()
-            for col in df.columns if df[col].dtype == 'O'
+            for col in df.columns
+            if df[col].dtype == "O"
         },
         "unique_ids": len(set(ids)),
         "duplicate_ids": [k for k, v in Counter(ids).items() if v > 1],
@@ -98,9 +104,11 @@ def profile_collection(collection):
 
     return profile, df, embeddings, docs, ids
 
+
 # ==============================
 # Smart Export for Edge ML
 # ==============================
+
 
 def export_for_edge(df, embeddings, docs, ids, top_n=2048, key_fields=None):
     """
@@ -109,21 +117,29 @@ def export_for_edge(df, embeddings, docs, ids, top_n=2048, key_fields=None):
     Writes export to 'export_for_edge.json'.
     """
     if key_fields is None:
-        key_fields = ['id', 'title', 'summary', 'cve_id', 'published', 'source', 'severity']
+        key_fields = [
+            "id",
+            "title",
+            "summary",
+            "cve_id",
+            "published",
+            "source",
+            "severity",
+        ]
 
     # Remove duplicates (by id) and keep only one
-    df = df.drop_duplicates(subset=['id'])
+    df = df.drop_duplicates(subset=["id"])
 
     # Attempt to sort by published date, else by document length
-    if 'published' in df.columns:
+    if "published" in df.columns:
         try:
-            df['published_dt'] = pd.to_datetime(df['published'], errors='coerce')
-            df = df.sort_values('published_dt', ascending=False)
+            df["published_dt"] = pd.to_datetime(df["published"], errors="coerce")
+            df = df.sort_values("published_dt", ascending=False)
         except Exception:
             pass
 
     # Secondary sort: longest documents first (most informative)
-    df = df.sort_values('doc_len', ascending=False)
+    df = df.sort_values("doc_len", ascending=False)
 
     # Select the top N entries for export
     selected = df.head(top_n)
@@ -133,8 +149,8 @@ def export_for_edge(df, embeddings, docs, ids, top_n=2048, key_fields=None):
     for idx, row in selected.iterrows():
         entry = {k: row.get(k, None) for k in key_fields if k in row}
         i = list(df.index).index(idx)  # Map index to correct position
-        entry['vector'] = embeddings[i].tolist()
-        entry['document'] = docs[i]
+        entry["vector"] = embeddings[i].tolist()
+        entry["document"] = docs[i]
         export_list.append(entry)
 
     print(f"Exporting {len(export_list)} records to edge (JSON format).")
@@ -145,9 +161,11 @@ def export_for_edge(df, embeddings, docs, ids, top_n=2048, key_fields=None):
 
     return export_list
 
+
 # ==============================
 # Main Entry Point
 # ==============================
+
 
 def main():
     """
@@ -168,11 +186,12 @@ def main():
     profile, df, embeddings, docs, ids = profile_collection(collection)
 
     # Only export records with real documents
-    export_for_edge(df[df['has_doc']], embeddings, docs, ids, top_n=2048)
+    export_for_edge(df[df["has_doc"]], embeddings, docs, ids, top_n=2048)
 
     # Save profile for future reference
     with open("chroma_profile.json", "w") as pf:
         json.dump(profile, pf, indent=2)
+
 
 # ==============================
 # Run if main
