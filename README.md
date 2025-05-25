@@ -26,21 +26,21 @@
 
 ## Getting Started
 
-
-### 1. (Optional) Set Up a Virtual Environment
-```
-python3 -m venv venv
-source venv/bin/activate
-```
-### 2. Install Requirements
-```
-pip install chromadb pandas numpy
-```
-### 3. Clone the Repo
+### 1. Clone the Repo
 ```
 git clone https://github.com/miketigerblue/chroma-curator.git
 cd chroma-curator
 ```
+### 2. (Optional) Set Up a Virtual Environment
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+### 3. Install Requirements
+```
+pip install chromadb pandas numpy
+```
+
 ### 4. Run the Profiler and Export Tool
 ```
 ./cli.py
