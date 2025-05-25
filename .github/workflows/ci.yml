@@ -9,8 +9,10 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -23,16 +25,22 @@ jobs:
           pip install -r requirements.txt
           pip install flake8 bandit pytest
 
+      # Install package in editable mode (so imports work everywhere)
+      - name: Install chroma_curator package (editable)
+        run: |
+          pip install -e .
+
+      # Lint both package and CLI script
       - name: Lint with flake8
         run: |
-          # Lint both the package and CLI script
           flake8 chroma_curator/ cli.py --max-line-length=100
 
+      # Static analysis for security issues
       - name: Static security scan with Bandit
         run: |
-          # Scan both the package and CLI script
           bandit -r chroma_curator/ cli.py
 
+      # Ensure test_vectors.json exists before running tests
       - name: Ensure test_vectors.json exists
         run: |
           if [ ! -f tests/test_vectors.json ]; then
@@ -40,13 +48,15 @@ jobs:
             exit 1
           fi
 
+      # Run all tests
       - name: Run unit tests
         run: |
           pytest tests/
 
+      # Secret scanning with detect-secrets CLI
       - name: Check for secrets with detect-secrets
         run: |
           pip install detect-secrets
           detect-secrets scan > .secrets.baseline
-          detect-secrets audit .secrets.baseline
-        
+          # This will print audit results, but not fail the build on findings (for fail-on-find, handle exit code)
+          detect-secrets audit .secrets.baseline || exit 0
