@@ -11,7 +11,7 @@ Usage:
 Author: Mike Harris (mike.harris@tigerblue.tech)
 This file is part of the Chroma Curator project, which profiles and exports
 curated vector datasets for on-device ML/AI applications.
-Date: 2023-10-01
+Date: 2025-05-25
 
 """
 
